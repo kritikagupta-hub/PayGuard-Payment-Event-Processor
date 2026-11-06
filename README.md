@@ -44,7 +44,7 @@ src/main/java/com/payguard/
 ## 🚦 Roadmap & Implementation Progress
 
 - [x] **Section 1**: Project Initialization (Spring Boot setup, Maven, H2, package structure, git repository)
-- [ ] **Section 2**: Database and Entities (Wallet & TransactionRecord)
+- [x] **Section 2**: Database and Entities (Wallet & TransactionRecord)
 - [ ] **Section 3**: Repository Layer (WalletRepository & TransactionRepository)
 - [ ] **Section 4**: Wallet Management APIs (Create, Get, Balance check)
 - [ ] **Section 5**: Transaction Processing (Credit, Debit, Balance update, Audit history)
@@ -73,3 +73,4 @@ The application will start on port `8080`.
   - JDBC URL: `jdbc:h2:mem:payguarddb`
   - Username: `sa`
   - Password: *(empty)*
+
