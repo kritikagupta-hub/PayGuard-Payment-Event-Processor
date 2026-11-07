@@ -51,7 +51,7 @@ src/main/java/com/payguard/
 - [x] **Section 6**: Idempotency (Duplicate detection, Replay handling)
 - [x] **Section 7**: Concurrency Handling (Pessimistic locking, Concurrent debits)
 - [x] **Section 8**: Validation and Exception Handling (Custom exceptions, Global handler)
-- [ ] **Section 9**: Integration & Concurrency Testing (JUnit 5, 10-thread debit test)
+- [x] **Section 9**: Integration & Concurrency Testing (JUnit 5, 10-thread debit test)
 - [ ] **Section 10**: Final Documentation & API Reference
 
 ---

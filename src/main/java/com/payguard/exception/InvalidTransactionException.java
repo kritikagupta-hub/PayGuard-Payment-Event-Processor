@@ -5,3 +5,4 @@ public class InvalidTransactionException extends RuntimeException {
         super(message);
     }
 }
+
