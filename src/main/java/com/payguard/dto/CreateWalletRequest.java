@@ -1,5 +1,6 @@
 package com.payguard.dto;
 
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -11,6 +12,7 @@ public class CreateWalletRequest {
     private String userId;
 
     @PositiveOrZero(message = "initialBalance must be greater than or equal to zero")
+    @Digits(integer = 15, fraction = 4, message = "initialBalance precision cannot exceed 4 decimal places")
     private BigDecimal initialBalance;
 
     public CreateWalletRequest() {
@@ -37,4 +39,3 @@ public class CreateWalletRequest {
         this.initialBalance = initialBalance;
     }
 }
-

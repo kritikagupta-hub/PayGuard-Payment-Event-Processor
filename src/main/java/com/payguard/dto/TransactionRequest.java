@@ -1,6 +1,7 @@
 package com.payguard.dto;
 
 import com.payguard.entity.TransactionType;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -17,6 +18,7 @@ public class TransactionRequest {
 
     @NotNull(message = "amount is required")
     @Positive(message = "amount must be strictly greater than zero")
+    @Digits(integer = 15, fraction = 4, message = "amount precision cannot exceed 4 decimal places")
     private BigDecimal amount;
 
     @NotNull(message = "type is required (must be CREDIT or DEBIT)")
@@ -64,4 +66,3 @@ public class TransactionRequest {
         this.type = type;
     }
 }
-
