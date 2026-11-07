@@ -44,7 +44,11 @@ public class TransactionService {
      */
     @Transactional
     public TransactionResponse process(TransactionRequest request) {
-        // Layer 1: Fast-Path Idempotency check
+        // Step 1: Acquire pessimistic write lock on the wallet row first to serialize concurrent access for this user
+        Wallet wallet = walletRepository.findByUserIdWithLock(request.getUserId())
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for userId: " + request.getUserId()));
+
+        // Step 2: Layer 1 Fast-Path Idempotency check
         Optional<TransactionRecord> existing = transactionRepository.findByTransactionId(request.getTransactionId());
         if (existing.isPresent()) {
             TransactionRecord record = existing.get();
@@ -55,9 +59,6 @@ public class TransactionService {
                     "Duplicate transaction detected. Original transaction result returned."
             );
         }
-
-        Wallet wallet = walletRepository.findByUserIdWithLock(request.getUserId())
-                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for userId: " + request.getUserId()));
 
         BigDecimal balanceBefore = wallet.getBalance();
 

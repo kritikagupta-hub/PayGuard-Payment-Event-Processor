@@ -62,9 +62,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
-                    <argLine>-Xmx192m -Xms32m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC</argLine>
+                    <forkCount>0</forkCount>
                 </configuration>
             </plugin>
         </plugins>

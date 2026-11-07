@@ -90,12 +90,14 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Idempotency Layer 1: Should return original transaction without updating balance when duplicate transactionId is received")
     void testProcessDuplicateTransactionReturnsExistingResultWithoutMutatingBalance() {
+        Wallet wallet = new Wallet("WLT-DUP", "USER_TXN_DUP", new BigDecimal("200.00"));
         TransactionRequest request = new TransactionRequest("TXN_DUP_FAST", "USER_TXN_DUP", new BigDecimal("100.00"), TransactionType.CREDIT);
         TransactionRecord existingRecord = new TransactionRecord(
                 "TXN_DUP_FAST", "WLT-DUP", "USER_TXN_DUP", new BigDecimal("100.00"),
                 TransactionType.CREDIT, TransactionStatus.SUCCESS, new BigDecimal("200.00"), new BigDecimal("300.00"), null
         );
 
+        when(walletRepository.findByUserIdWithLock("USER_TXN_DUP")).thenReturn(Optional.of(wallet));
         when(transactionRepository.findByTransactionId("TXN_DUP_FAST")).thenReturn(Optional.of(existingRecord));
 
         TransactionResponse response = transactionService.process(request);
@@ -106,7 +108,6 @@ class TransactionServiceTest {
         assertEquals(new BigDecimal("300.0000"), response.getBalanceAfter());
         assertTrue(response.getMessage().contains("Duplicate transaction detected"));
 
-        verify(walletRepository, never()).findByUserIdWithLock(anyString());
         verify(walletRepository, never()).save(any(Wallet.class));
         verify(transactionRepository, never()).saveAndFlush(any(TransactionRecord.class));
     }
@@ -146,7 +147,6 @@ class TransactionServiceTest {
     void testProcessWalletNotFound() {
         TransactionRequest request = new TransactionRequest("TXN_04", "NON_EXISTENT", new BigDecimal("100.00"), TransactionType.CREDIT);
 
-        when(transactionRepository.findByTransactionId("TXN_04")).thenReturn(Optional.empty());
         when(walletRepository.findByUserIdWithLock("NON_EXISTENT")).thenReturn(Optional.empty());
 
         assertThrows(WalletNotFoundException.class, () -> transactionService.process(request));
