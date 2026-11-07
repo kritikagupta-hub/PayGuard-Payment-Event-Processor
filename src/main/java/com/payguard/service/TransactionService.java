@@ -6,15 +6,18 @@ import com.payguard.entity.TransactionRecord;
 import com.payguard.entity.TransactionStatus;
 import com.payguard.entity.TransactionType;
 import com.payguard.entity.Wallet;
+import com.payguard.exception.DuplicateTransactionException;
 import com.payguard.exception.InsufficientBalanceException;
 import com.payguard.exception.WalletNotFoundException;
 import com.payguard.repository.TransactionRepository;
 import com.payguard.repository.WalletRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -28,11 +31,31 @@ public class TransactionService {
     }
 
     /**
-     * Processes a payment transaction (CREDIT or DEBIT) against a user's wallet.
-     * Manages transactional boundaries, balance calculations, and audit history.
+     * Processes a payment transaction (CREDIT or DEBIT) against a user's wallet with guaranteed idempotency.
+     *
+     * Layer 1 (Fast-Path Idempotency):
+     * Checks if the transactionId has already been recorded. If so, immediately returns the previous
+     * result without re-mutating the wallet balance.
+     *
+     * Layer 2 (Database Constraint & Race-Condition Safety Net):
+     * If two identical transactionIds arrive simultaneously, the database UNIQUE constraint prevents
+     * double-insertion by throwing a DataIntegrityViolationException on saveAndFlush(), which is caught
+     * and converted to a DuplicateTransactionException (HTTP 409 Conflict).
      */
     @Transactional
     public TransactionResponse process(TransactionRequest request) {
+        // Layer 1: Fast-Path Idempotency check
+        Optional<TransactionRecord> existing = transactionRepository.findByTransactionId(request.getTransactionId());
+        if (existing.isPresent()) {
+            TransactionRecord record = existing.get();
+            return new TransactionResponse(
+                    record.getTransactionId(),
+                    record.getStatus(),
+                    record.getBalanceAfter(),
+                    "Duplicate transaction detected. Original transaction result returned."
+            );
+        }
+
         Wallet wallet = walletRepository.findByUserIdWithLock(request.getUserId())
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found for userId: " + request.getUserId()));
 
@@ -67,7 +90,8 @@ public class TransactionService {
                 null
         );
 
-        transactionRepository.saveAndFlush(record);
+        // Layer 2: Save and flush to immediately enforce DB UNIQUE constraint
+        saveRecordHandlingRace(record);
 
         return new TransactionResponse(
                 record.getTransactionId(),
@@ -75,6 +99,16 @@ public class TransactionService {
                 balanceAfter,
                 "Transaction processed successfully."
         );
+    }
+
+    private void saveRecordHandlingRace(TransactionRecord record) {
+        try {
+            transactionRepository.saveAndFlush(record);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateTransactionException(
+                    "Transaction with transactionId " + record.getTransactionId() + " was processed concurrently."
+            );
+        }
     }
 
     /**

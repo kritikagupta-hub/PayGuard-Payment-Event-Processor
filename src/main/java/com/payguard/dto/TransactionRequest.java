@@ -64,3 +64,4 @@ public class TransactionRequest {
         this.type = type;
     }
 }
+

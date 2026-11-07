@@ -48,7 +48,7 @@ src/main/java/com/payguard/
 - [x] **Section 3**: Repository Layer (WalletRepository & TransactionRepository)
 - [x] **Section 4**: Wallet Management APIs (Create, Get, Balance check)
 - [x] **Section 5**: Transaction Processing (Credit, Debit, Balance update, Audit history)
-- [ ] **Section 6**: Idempotency (Duplicate detection, Replay handling)
+- [x] **Section 6**: Idempotency (Duplicate detection, Replay handling)
 - [ ] **Section 7**: Concurrency Handling (Pessimistic locking, Concurrent debits)
 - [ ] **Section 8**: Validation and Exception Handling (Custom exceptions, Global handler)
 - [ ] **Section 9**: Integration & Concurrency Testing (JUnit 5, 10-thread debit test)
