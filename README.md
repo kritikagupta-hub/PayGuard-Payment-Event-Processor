@@ -46,7 +46,7 @@ src/main/java/com/payguard/
 - [x] **Section 1**: Project Initialization (Spring Boot setup, Maven, H2, package structure, git repository)
 - [x] **Section 2**: Database and Entities (Wallet & TransactionRecord)
 - [x] **Section 3**: Repository Layer (WalletRepository & TransactionRepository)
-- [ ] **Section 4**: Wallet Management APIs (Create, Get, Balance check)
+- [x] **Section 4**: Wallet Management APIs (Create, Get, Balance check)
 - [ ] **Section 5**: Transaction Processing (Credit, Debit, Balance update, Audit history)
 - [ ] **Section 6**: Idempotency (Duplicate detection, Replay handling)
 - [ ] **Section 7**: Concurrency Handling (Pessimistic locking, Concurrent debits)
